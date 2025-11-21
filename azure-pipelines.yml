@@ -38,15 +38,6 @@ stages:
     steps:
 
     - task: Kubernetes@1
-      displayName: "Apply Namespace"
-      inputs:
-        connectionType: "Kubernetes Service Connection"
-        kubernetesServiceEndpoint: "AKSService"
-        command: "apply"
-        useConfigurationFile: true
-        configuration: "manifests/namespace.yaml"
-
-    - task: Kubernetes@1
       displayName: "Apply Deployment"
       inputs:
         connectionType: "Kubernetes Service Connection"
