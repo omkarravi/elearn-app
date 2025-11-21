@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elearn
+  namespace: elearn-prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: elearn
+  template:
+    metadata:
+      labels:
+        app: elearn
+    spec:
+      containers:
+        - name: elearn
+          image: acrbest.azurecr.io/elearnapp:latest
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
