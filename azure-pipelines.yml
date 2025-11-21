@@ -1,29 +1,65 @@
-# Docker
-# Build a Docker image
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
 - master
 
-resources:
-- repo: self
-
-variables:
-  tag: '$(Build.BuildId)'
+pool:
+  name: ABC    # your self-hosted linux pool
 
 stages:
+
+###########################################################
+# STAGE 1: Build & Push Image to ACR
+###########################################################
 - stage: Build
-  displayName: Build image
+  displayName: "Build and Push Docker Image"
   jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: ubuntu-latest
+  - job: BuildPush
+    displayName: "Build & Push to ACR"
     steps:
+
     - task: Docker@2
-      displayName: Build an image
+      displayName: "Build and Push Image to ACR"
       inputs:
-        command: build
-        dockerfile: '$(Build.SourcesDirectory)/dockerfile'
+        containerRegistry: "acr-connection"      # ACR service connection
+        repository: "elearnapp"
+        command: "buildAndPush"
+        Dockerfile: "Dockerfile"
         tags: |
-          $(tag)
+          latest
+
+###########################################################
+# STAGE 2: Deploy to AKS
+###########################################################
+- stage: Deploy
+  displayName: "Deploy to AKS"
+  dependsOn: Build
+  jobs:
+  - job: DeployToAKS
+    displayName: "Apply Manifests to AKS"
+    steps:
+
+    - task: Kubernetes@1
+      displayName: "Apply Namespace"
+      inputs:
+        connectionType: "Kubernetes Service Connection"
+        kubernetesServiceEndpoint: "AKSService"
+        command: "apply"
+        useConfigurationFile: true
+        configuration: "manifests/namespace.yaml"
+
+    - task: Kubernetes@1
+      displayName: "Apply Deployment"
+      inputs:
+        connectionType: "Kubernetes Service Connection"
+        kubernetesServiceEndpoint: "AKSService"
+        command: "apply"
+        useConfigurationFile: true
+        configuration: "manifests/deployment.yaml"
+
+    - task: Kubernetes@1
+      displayName: "Apply Service"
+      inputs:
+        connectionType: "Kubernetes Service Connection"
+        kubernetesServiceEndpoint: "AKSService"
+        command: "apply"
+        useConfigurationFile: true
+        configuration: "manifests/services.yaml"
