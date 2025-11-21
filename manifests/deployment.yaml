@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: elearn
-  namespace: ravi
+  
 spec:
   replicas: 3
   selector:
