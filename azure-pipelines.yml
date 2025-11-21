@@ -22,7 +22,7 @@ stages:
         containerRegistry: "acr-connection"      # ACR service connection
         repository: "elearnapp"
         command: "buildAndPush"
-        Dockerfile: "Dockerfile"
+        Dockerfile: "dockerfile"
         tags: |
           latest
 
