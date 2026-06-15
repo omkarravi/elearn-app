@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:18-bullseye-slim as builder
+FROM node:20-bullseye-slim as builder
 WORKDIR /app
 COPY . .
 RUN npm install
